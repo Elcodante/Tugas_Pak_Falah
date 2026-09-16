@@ -74,4 +74,18 @@ public class EnemyPatrol : MonoBehaviour
         // Hapus objek dari scene ketika HP habis
         Destroy(gameObject);
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Jika musuh bertabrakan dengan player, berikan damage
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                float hitDirectionX = (collision.transform.position.x - transform.position.x > 0) ? 1f : -1f;
+                playerHealth.TakeDamage(damage, hitDirectionX);
+            }
+        }
+    }
 }

@@ -7,7 +7,13 @@ public class HealthUI : MonoBehaviour
 
     public void UpdateHealthBar(float currentHealth, float maxHealth)
     {
-        if(maxHealth <= 0)
+        if (healthBarFill == null)
+        {
+            Debug.LogError("Gagal update UI: Komponen Image 'HealthBarFill' belum dimasukkan ke Inspector!");
+            return; 
+        }
+
+        if (maxHealth <= 0)
         {
             Debug.LogWarning("Max health must be greater than zero.");
             return;
