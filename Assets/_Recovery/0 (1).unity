@@ -3164,7 +3164,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MiningController
   maxMineDistance: 1.5
   targetTilemap: {fileID: 1249000451}
-  timeToMine: 3
   droppedItemPrefab: {fileID: 690063709146971643, guid: 595260fab16188947af5e9804d02dc65, type: 3}
 --- !u!1 &1804722540
 GameObject:
