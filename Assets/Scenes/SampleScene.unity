@@ -3280,7 +3280,11 @@ MonoBehaviour:
   maxMineDistance: 1.5
   targetTilemap: {fileID: 1249000451}
   timeToMine: 3
-  droppedItemPrefab: {fileID: 690063709146971643, guid: 595260fab16188947af5e9804d02dc65, type: 3}
+  blockMappings:
+  - blockTile: {fileID: 11400000, guid: c189b6c35e60e37459df68561256e250, type: 2}
+    dropPrefab: {fileID: 690063709146971643, guid: 595260fab16188947af5e9804d02dc65, type: 3}
+  - blockTile: {fileID: 11400000, guid: befd994d91d39c2409bbee1d03a0ae40, type: 2}
+    dropPrefab: {fileID: 4823452515888197552, guid: 0ee640c97838c3c479f7ecd7b6439584, type: 3}
   MaxPlaceDistance: 2
   blockCount: 0
   heldItemVisual: {fileID: 671124451}

@@ -1,13 +1,22 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+[System.Serializable]
+public class BlockMapping
+{
+    public TileBase blockTile;      // Gambar blok yang ada di tanah (Tilemap)
+    public GameObject dropPrefab;   // Prefab item mengambang yang akan jatuh
+}
+
 public class MiningController : MonoBehaviour
 {
     [Header("Pengaturan Mining")]
     public float maxMineDistance = 1.5f;
     public Tilemap targetTilemap;
     public float timeToMine = 1.0f;
-    public GameObject droppedItemPrefab;
+
+    [Header("Daftar Drop Item")]
+    public BlockMapping[] blockMappings;
 
     [Tooltip("Pengaturan Placing")]
     public float MaxPlaceDistance = 2.0f;
@@ -22,7 +31,6 @@ public class MiningController : MonoBehaviour
     private bool isMining = false;
     private Vector3Int currentMiningCell;
 
-    // Referensi ke script pergerakan agar bisa mematikan fungsi lari
     private MovementController moveControl;
 
     private void Start()
@@ -33,11 +41,9 @@ public class MiningController : MonoBehaviour
 
     private void Update()
     {
-        // KLIK KANAN: Mining
         if (Input.GetMouseButton(1)) ProcessMining();
         else if (Input.GetMouseButtonUp(1)) ResetMining();
 
-        // KLIK KIRI: Placing
         if (Input.GetMouseButtonDown(0)) ProcessPlacing();
     }
 
@@ -58,7 +64,7 @@ public class MiningController : MonoBehaviour
                 Vector3 cellCenter = targetTilemap.GetCellCenterWorld(cellPosition);
                 Collider2D hit = Physics2D.OverlapBox(cellCenter, new Vector2(0.9f, 0.9f), 0f);
 
-                if (hit != null && hit.CompareTag("Player")) return; // Anti-timbun badan
+                if (hit != null && hit.CompareTag("Player")) return;
 
                 targetTilemap.SetTile(cellPosition, currentHeldTile);
                 blockCount--;
@@ -96,8 +102,28 @@ public class MiningController : MonoBehaviour
 
     private void BreakBlock(Vector3Int cellPosition)
     {
+        TileBase minedTile = targetTilemap.GetTile(cellPosition);
         Vector3 spawnPos = targetTilemap.GetCellCenterWorld(cellPosition);
-        if (droppedItemPrefab != null) Instantiate(droppedItemPrefab, spawnPos, Quaternion.identity);
+
+        GameObject prefabToDrop = null;
+        foreach (BlockMapping mapping in blockMappings)
+        {
+            if (mapping.blockTile == minedTile)
+            {
+                prefabToDrop = mapping.dropPrefab;
+                break; 
+            }
+        }
+
+        if (prefabToDrop != null)
+        {
+            Instantiate(prefabToDrop, spawnPos, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogWarning("Blok dihancurkan, tapi tidak ada drop item yang didaftarkan untuk blok ini!");
+        }
+
         targetTilemap.SetTile(cellPosition, null);
         ResetMining();
     }
@@ -128,7 +154,6 @@ public class MiningController : MonoBehaviour
                 heldItemVisual.sprite = newSprite;
                 heldItemVisual.gameObject.SetActive(true);
 
-                // Matikan kemampuan lari
                 if (moveControl != null) moveControl.isHoldingItem = true;
             }
             else
@@ -136,7 +161,6 @@ public class MiningController : MonoBehaviour
                 heldItemVisual.sprite = null;
                 heldItemVisual.gameObject.SetActive(false);
 
-                // Kembalikan kemampuan lari
                 if (moveControl != null) moveControl.isHoldingItem = false;
             }
         }
