@@ -17,6 +17,9 @@ public class MovementController : MonoBehaviour
 
     private bool isDead = false;
 
+    // [DITAMBAHKAN] Variabel untuk mengecek apakah player sedang memegang item
+    public bool isHoldingItem = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -29,8 +32,8 @@ public class MovementController : MonoBehaviour
 
         if (isDead)
         {
-            anim.SetBool("Jumping", false); 
-            anim.SetFloat("Speed", 0);  
+            anim.SetBool("Jumping", false);
+            anim.SetFloat("Speed", 0);
         }
     }
 
@@ -55,10 +58,16 @@ public class MovementController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // [TAMBAHKAN] Jika sudah mati, JANGAN jalankan kode fisika
         if (isDead) return;
 
-        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+        // [DIPERBAIKI] Logika Lari. Jika memegang item, paksa jalan santai.
+        float currentSpeed = walkSpeed;
+
+        if (!isHoldingItem && Input.GetKey(KeyCode.LeftShift))
+        {
+            currentSpeed = runSpeed;
+        }
+
         rb.linearVelocity = new Vector2(horizontalInput * currentSpeed, rb.linearVelocity.y);
     }
 }
