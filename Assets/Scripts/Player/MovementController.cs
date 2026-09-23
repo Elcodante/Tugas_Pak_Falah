@@ -1,6 +1,6 @@
 using UnityEngine;
-
-public class MovementController : MonoBehaviour
+using Unity.Netcode;
+public class MovementController : NetworkBehaviour
 {
     public float walkSpeed = 5f;
     public float runSpeed = 8f;
@@ -39,6 +39,8 @@ public class MovementController : MonoBehaviour
 
     void Update()
     {
+        if(!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
+
         if (isDead) return;
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
@@ -58,6 +60,8 @@ public class MovementController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if(!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
+
         if (isDead) return;
 
         // [DIPERBAIKI] Logika Lari. Jika memegang item, paksa jalan santai.
