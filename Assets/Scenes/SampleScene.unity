@@ -3512,6 +3512,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -3657089878164011958, guid: 988115a2fc769a74bbae8760f6a7b92a, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -3657089878164011958, guid: 988115a2fc769a74bbae8760f6a7b92a, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1275063408
+      objectReference: {fileID: 0}
+    - target: {fileID: -3657089878164011958, guid: 988115a2fc769a74bbae8760f6a7b92a, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3657089878164011958, guid: 988115a2fc769a74bbae8760f6a7b92a, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 3006282185
+      objectReference: {fileID: 0}
     - target: {fileID: 2894486198861575982, guid: 988115a2fc769a74bbae8760f6a7b92a, type: 3}
       propertyPath: m_Name
       value: Player
