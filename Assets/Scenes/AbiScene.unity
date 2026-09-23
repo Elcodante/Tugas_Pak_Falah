@@ -537,10 +537,13 @@ MonoBehaviour:
   runSpeed: 8
   jumpForce: 10
   groundCheck: {fileID: 1993705921}
-  groundCheckRadius: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 0
+  groundCheckRadius: 0.2
+  isDead: 0
+  isHoldingItem: 0
+  currentState: 0
 --- !u!61 &2022398914
 BoxCollider2D:
   m_ObjectHideFlags: 0
