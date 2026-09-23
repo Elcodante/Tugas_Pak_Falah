@@ -41,7 +41,15 @@ public class RelayManager : MonoBehaviour
         };
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
-        // Tampilkan panel awal
+        // UBAH DI SINI: Sembunyikan semua panel jaringan saat game baru dimulai
+        panelLobbySelection.SetActive(false);
+        panelHostRoom.SetActive(false);
+        panelJoinRoom.SetActive(false);
+    }
+
+    // TAMBAHKAN FUNGSI BARU INI:
+    public void Button_OpenLobbySelection()
+    {
         ShowPanel(panelLobbySelection);
     }
 
