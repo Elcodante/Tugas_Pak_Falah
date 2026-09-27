@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+
 public class MovementController : NetworkBehaviour
 {
     public float walkSpeed = 5f;
@@ -10,6 +11,9 @@ public class MovementController : NetworkBehaviour
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.2f;
 
+    // [DITAMBAHKAN] Referensi untuk Canvas Nama agar tidak terbalik
+    public Transform nameCanvas;
+
     private Rigidbody2D rb;
     private Animator anim;
     private bool isGrounded;
@@ -17,7 +21,7 @@ public class MovementController : NetworkBehaviour
 
     private bool isDead = false;
 
-    // [DITAMBAHKAN] Variabel untuk mengecek apakah player sedang memegang item
+    // Variabel untuk mengecek apakah player sedang memegang item
     public bool isHoldingItem = false;
 
     void Start()
@@ -39,7 +43,7 @@ public class MovementController : NetworkBehaviour
 
     void Update()
     {
-        if(!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
+        if (!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
 
         if (isDead) return;
 
@@ -51,8 +55,19 @@ public class MovementController : NetworkBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
 
-        if (horizontalInput > 0) transform.localScale = new Vector3(1, 1, 1);
-        else if (horizontalInput < 0) transform.localScale = new Vector3(-1, 1, 1);
+        // [DIPERBAIKI] Balikkan karakter, dan secara bersamaan beri efek berlawanan pada Canvas
+        if (horizontalInput > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+            // Kembalikan Canvas ke normal
+            if (nameCanvas != null) nameCanvas.localScale = new Vector3(1, 1, 1);
+        }
+        else if (horizontalInput < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+            // Beri nilai -1 pada Canvas. (Karakter -1 dikali Canvas -1 = Teks kembali positif/normal)
+            if (nameCanvas != null) nameCanvas.localScale = new Vector3(-1, 1, 1);
+        }
 
         anim.SetFloat("Speed", Mathf.Abs(horizontalInput));
         anim.SetBool("Jumping", !isGrounded);
@@ -60,11 +75,11 @@ public class MovementController : NetworkBehaviour
 
     void FixedUpdate()
     {
-        if(!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
+        if (!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
 
         if (isDead) return;
 
-        // [DIPERBAIKI] Logika Lari. Jika memegang item, paksa jalan santai.
+        // Logika Lari. Jika memegang item, paksa jalan santai.
         float currentSpeed = walkSpeed;
 
         if (!isHoldingItem && Input.GetKey(KeyCode.LeftShift))
