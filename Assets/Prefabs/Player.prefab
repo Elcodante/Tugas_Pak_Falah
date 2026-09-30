@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6051458355321354783}
   - component: {fileID: 1010895943274681498}
   - component: {fileID: 2954080757771167886}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Text_Nama
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -155,7 +155,8 @@ GameObject:
   - component: {fileID: 5536024242964534401}
   - component: {fileID: -2901886669394568168}
   - component: {fileID: -6021780939119153055}
-  m_Layer: 0
+  - component: {fileID: 106516874995924875}
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -500,6 +501,38 @@ MonoBehaviour:
         byte0027: 0
         byte0028: 0
         byte0029: 0
+--- !u!114 &106516874995924875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2894486198861575982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d444828b271f0bc49922e7fdcaa7eb31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClientNetworkAnimator
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkAnimatorExpanded: 0
+  AuthorityMode: 0
+  m_Animator: {fileID: 5536024242964534401}
+  TransitionStateInfoList: []
+  AnimatorParameterEntries:
+    ParameterEntries:
+    - name: Speed
+      NameHash: -823668238
+      Synchronize: 1
+      ParameterType: 1
+    - name: Jumping
+      NameHash: 1137391654
+      Synchronize: 1
+      ParameterType: 4
+    - name: isDead
+      NameHash: 1276664872
+      Synchronize: 1
+      ParameterType: 4
+  AnimatorParametersExpanded: 0
 --- !u!1 &3231860900926644524
 GameObject:
   m_ObjectHideFlags: 0
@@ -509,7 +542,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1184798189322657598}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -543,7 +576,7 @@ GameObject:
   - component: {fileID: 5265409427779292214}
   - component: {fileID: 2388986753475061335}
   - component: {fileID: 2871600839186511822}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
