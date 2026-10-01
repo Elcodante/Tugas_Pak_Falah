@@ -59,14 +59,10 @@ public class MovementController : NetworkBehaviour
         if (horizontalInput > 0)
         {
             transform.localScale = new Vector3(1, 1, 1);
-            // Kembalikan Canvas ke normal
-            if (nameCanvas != null) nameCanvas.localScale = new Vector3(1, 1, 1);
         }
         else if (horizontalInput < 0)
         {
             transform.localScale = new Vector3(-1, 1, 1);
-            // Beri nilai -1 pada Canvas. (Karakter -1 dikali Canvas -1 = Teks kembali positif/normal)
-            if (nameCanvas != null) nameCanvas.localScale = new Vector3(-1, 1, 1);
         }
 
         anim.SetFloat("Speed", Mathf.Abs(horizontalInput));
@@ -88,5 +84,13 @@ public class MovementController : NetworkBehaviour
         }
 
         rb.linearVelocity = new Vector2(horizontalInput * currentSpeed, rb.linearVelocity.y);
+    }
+
+    private void LateUpdate()
+    {
+        if (nameCanvas != null) { }
+        {
+            nameCanvas.localScale = new Vector3(transform.localScale.x, 1, 1); // Pastikan Canvas Nama selalu tegak
+        }
     }
 }
