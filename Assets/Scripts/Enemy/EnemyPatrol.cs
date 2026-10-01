@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
 public class EnemyPatrol : MonoBehaviour
@@ -77,14 +78,26 @@ public class EnemyPatrol : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Jika musuh bertabrakan dengan player, berikan damage
+        // Langsung cek apakah yang ditabrak adalah Player
         if (collision.gameObject.CompareTag("Player"))
         {
-            PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
+            // Ambil identitas jaringannya
+            NetworkObject playerNetObj = collision.gameObject.GetComponent<NetworkObject>();
+
+            // [PENTING] Hanya proses tabrakan jika layar ini adalah PEMILIK dari karakter tersebut!
+            // Artinya: Layar Host mendeteksi tabrakan Host, Layar Client mendeteksi tabrakan Client.
+            if (playerNetObj != null && playerNetObj.IsOwner)
             {
-                float hitDirectionX = (collision.transform.position.x - transform.position.x > 0) ? 1f : -1f;
-                playerHealth.TakeDamage(damage, hitDirectionX);
+                PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
+                if (playerHealth != null)
+                {
+                    float hitDirectionX = (collision.transform.position.x - transform.position.x > 0) ? 1f : -1f;
+
+                    // Karena kita hanya mengeksekusi ini dari layar si korban, 
+                    // reaksi akan instan tanpa delay!
+                    // Fungsi ini akan secara otomatis memanggil RPC ke Server.
+                    playerHealth.TakeDamage(damage, hitDirectionX);
+                }
             }
         }
     }
