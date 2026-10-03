@@ -192,6 +192,13 @@ public class RelayManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("IsMultiplayer", 0); // Penanda mode single-player
         PlayerPrefs.Save();
-        // Masukkan logika load scene single player milikmu di sini...
+
+        // 1. Memulai NetworkManager sebagai Host Lokal (Offline)
+        // Kita tidak menggunakan Relay (internet) di sini, murni koneksi lokal di komputer Anda sendiri.
+        NetworkManager.Singleton.StartHost();
+
+        // 2. Gunakan SceneManager milik NetworkManager untuk pindah scene!
+        // INI SANGAT PENTING agar NetworkManager tahu ia harus memindahkan Player ke scene baru.
+        NetworkManager.Singleton.SceneManager.LoadScene("In_Game", LoadSceneMode.Single);
     }
 }
