@@ -173,7 +173,7 @@ Transform:
   m_GameObject: {fileID: 2894486198861575982}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.81, y: 2.06, z: 0}
+  m_LocalPosition: {x: 9.16105, y: 4.20621, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -230,7 +230,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -8865351867944355350, guid: bb3d5bcce91a5314a8064fe52797c4ad, type: 3}
+  m_Sprite: {fileID: -2473856526140160928, guid: 0510613bfd57f3241b6b157d62a616b4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -279,16 +279,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2307063277
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 364547512
+  InScenePlacedSourceGlobalObjectIdHash: 3006282185
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
-  m_InScenePlaced: 0
+  m_InScenePlaced: 1
   ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
+  SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
@@ -329,7 +329,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f31fbc457266644082e979927701cd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  ShowTopMostFoldoutHeaderGroup: 1
   maxHealth: 20
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 100
   healthUI: {fileID: 0}
   knockbackForceX: 5
   knockbackForceY: 3
@@ -369,7 +375,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.039327145, y: 0.51511276}
+  m_Offset: {x: 0.00015878677, y: 0.50257015}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.43243244, y: 0.125}
@@ -379,7 +385,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.83085155, y: 0.9762738}
+  m_Size: {x: 0.6334238, y: 1.001359}
   m_EdgeRadius: 0
 --- !u!95 &5536024242964534401
 Animator:

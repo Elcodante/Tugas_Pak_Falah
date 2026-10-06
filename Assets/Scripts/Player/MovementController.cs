@@ -43,7 +43,7 @@ public class MovementController : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
+        //if (!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
 
         if (isDead) return;
 
@@ -71,7 +71,7 @@ public class MovementController : NetworkBehaviour
 
     void FixedUpdate()
     {
-        if (!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
+        //if (!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya
 
         if (isDead) return;
 
