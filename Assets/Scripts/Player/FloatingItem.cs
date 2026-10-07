@@ -68,8 +68,6 @@ public class FloatingItem : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // PERBAIKAN: Tambah syarat (Time.time - spawnTime > 0.5f) 
-        // Supaya item tidak bisa langsung disedot kurang dari 0.5 detik setelah dilempar/dibuat
         if (collision.CompareTag("Player") && !isBeingPickedUp && !isFalling && (Time.time - spawnTime > 0.5f))
         {
             MiningController playerMining = collision.GetComponent<MiningController>();
