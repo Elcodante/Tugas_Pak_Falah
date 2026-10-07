@@ -4,8 +4,8 @@ using UnityEngine.Tilemaps;
 [System.Serializable]
 public class BlockMapping
 {
-    public TileBase blockTile;      // Gambar blok yang ada di tanah (Tilemap)
-    public GameObject dropPrefab;   // Prefab item mengambang yang akan jatuh
+    public TileBase blockTile;
+    public GameObject dropPrefab;
 }
 
 public class MiningController : MonoBehaviour
@@ -18,19 +18,14 @@ public class MiningController : MonoBehaviour
     [Header("Daftar Drop Item")]
     public BlockMapping[] blockMappings;
 
-    [Tooltip("Pengaturan Placing")]
-    public float MaxPlaceDistance = 2.0f;
-
     [Header("Simulasi Tas")]
     public int blockCount;
-
     public SpriteRenderer heldItemVisual;
     private TileBase currentHeldTile;
 
     private float mineTimer = 0f;
     private bool isMining = false;
     private Vector3Int currentMiningCell;
-
     private MovementController moveControl;
 
     private void Start()
@@ -41,35 +36,20 @@ public class MiningController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButton(1)) ProcessMining();
-        else if (Input.GetMouseButtonUp(1)) ResetMining();
-
-        if (Input.GetMouseButtonDown(0)) ProcessPlacing();
-    }
-
-    private void ProcessPlacing()
-    {
-        if (blockCount <= 0 || currentHeldTile == null) return;
-
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPos.z = 0f;
-        float distance = Vector2.Distance(transform.position, mouseWorldPos);
-
-        if (distance <= MaxPlaceDistance)
+        // KLIK KANAN: Menghancurkan Kristal
+        if (Input.GetMouseButton(1))
         {
-            Vector3Int cellPosition = targetTilemap.WorldToCell(mouseWorldPos);
+            ProcessMining();
+        }
+        else if (Input.GetMouseButtonUp(1))
+        {
+            ResetMining();
+        }
 
-            if (targetTilemap.GetTile(cellPosition) == null)
-            {
-                Vector3 cellCenter = targetTilemap.GetCellCenterWorld(cellPosition);
-                Collider2D hit = Physics2D.OverlapBox(cellCenter, new Vector2(0.9f, 0.9f), 0f);
-
-                if (hit != null && hit.CompareTag("Player")) return;
-
-                targetTilemap.SetTile(cellPosition, currentHeldTile);
-                blockCount--;
-                UpdateHeldVisual(null);
-            }
+        // TOMBOL B: Melempar Item
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            DropItem();
         }
     }
 
@@ -106,22 +86,19 @@ public class MiningController : MonoBehaviour
         Vector3 spawnPos = targetTilemap.GetCellCenterWorld(cellPosition);
 
         GameObject prefabToDrop = null;
+
         foreach (BlockMapping mapping in blockMappings)
         {
             if (mapping.blockTile == minedTile)
             {
                 prefabToDrop = mapping.dropPrefab;
-                break; 
+                break;
             }
         }
 
         if (prefabToDrop != null)
         {
             Instantiate(prefabToDrop, spawnPos, Quaternion.identity);
-        }
-        else
-        {
-            Debug.LogWarning("Blok dihancurkan, tapi tidak ada drop item yang didaftarkan untuk blok ini!");
         }
 
         targetTilemap.SetTile(cellPosition, null);
@@ -145,6 +122,58 @@ public class MiningController : MonoBehaviour
         return true;
     }
 
+    // --- FUNGSI BARU: MELEMPAR ITEM ---
+    private void DropItem()
+    {
+        if (blockCount <= 0) return;
+
+        GameObject prefabToDrop = null;
+
+        // Mencari Prefab yang sesuai dengan Tile yang sedang dipegang
+        foreach (BlockMapping mapping in blockMappings)
+        {
+            if (mapping.blockTile == currentHeldTile)
+            {
+                prefabToDrop = mapping.dropPrefab;
+                break;
+            }
+        }
+
+        if (prefabToDrop != null)
+        {
+            float arahX = 1f;
+            SpriteRenderer playerSprite = GetComponent<SpriteRenderer>();
+
+            if (playerSprite != null && playerSprite.flipX)
+            {
+                arahX = -1f;
+            }
+            else if (transform.localScale.x < 0)
+            {
+                arahX = -1f;
+            }
+
+            // ATUR JARAK 1 BLOK: Menggunakan 1.0f agar posisinya pas 1 unit/blok di depan player
+            float jarakSatuBlok = 1.0f;
+            Vector3 spawnPos = transform.position + new Vector3(arahX * jarakSatuBlok, 0.2f, 0);
+
+            GameObject droppedItem = Instantiate(prefabToDrop, spawnPos, Quaternion.identity);
+
+            Rigidbody2D rb = droppedItem.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                // Lemparan kecil / dorongan ringan agar jatuh mulus di jarak 1 blok
+                Vector2 throwDirection = new Vector2(arahX, 0.5f).normalized;
+                rb.AddForce(throwDirection * 4f, ForceMode2D.Impulse);
+            }
+        }
+
+        // Kosongkan tas dan matikan visual di atas kepala
+        blockCount = 0;
+        currentHeldTile = null;
+        UpdateHeldVisual(null);
+    }
+
     private void UpdateHeldVisual(Sprite newSprite)
     {
         if (heldItemVisual != null)
@@ -153,14 +182,12 @@ public class MiningController : MonoBehaviour
             {
                 heldItemVisual.sprite = newSprite;
                 heldItemVisual.gameObject.SetActive(true);
-
                 if (moveControl != null) moveControl.isHoldingItem = true;
             }
             else
             {
                 heldItemVisual.sprite = null;
                 heldItemVisual.gameObject.SetActive(false);
-
                 if (moveControl != null) moveControl.isHoldingItem = false;
             }
         }
