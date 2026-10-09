@@ -180,6 +180,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FloatingItem
   itemSprite: {fileID: -5652021878662206163, guid: a3c338243f701d843b390238eb3c01d1, type: 3}
-  itemTile: {fileID: 11400000, guid: 14d15a29a89900e4280bda04f22cb058, type: 2}
+  itemTile: {fileID: 11400000, guid: 76592efa340fba44aacc8123eec73d21, type: 2}
   amplitude: 0.2
   speed: 2
