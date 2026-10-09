@@ -164,7 +164,7 @@ public class MiningController : MonoBehaviour
             {
                 // Lemparan kecil / dorongan ringan agar jatuh mulus di jarak 1 blok
                 Vector2 throwDirection = new Vector2(arahX, 0.5f).normalized;
-                rb.AddForce(throwDirection * 4f, ForceMode2D.Impulse);
+                rb.AddForce(throwDirection * 5f, ForceMode2D.Impulse);
             }
         }
 

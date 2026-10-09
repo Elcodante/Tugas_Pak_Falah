@@ -5082,7 +5082,7 @@ Transform:
   m_GameObject: {fileID: 270550890}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.26, y: 1.12, z: -10}
+  m_LocalPosition: {x: 19.26, y: 0.34, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5310,7 +5310,7 @@ Transform:
   m_GameObject: {fileID: 453891956}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.26, y: 1.12, z: -10}
+  m_LocalPosition: {x: 19.26, y: 0.34, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6781,16 +6781,24 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 3701336109470712223, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
+      propertyPath: blockCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3701336109470712223, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
       propertyPath: targetTilemap
       value: 
       objectReference: {fileID: 1314502690}
+    - target: {fileID: 3701336109470712223, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
+      propertyPath: blockMappings.Array.data[0].blockTile
+      value: 
+      objectReference: {fileID: 11400000, guid: 76592efa340fba44aacc8123eec73d21, type: 2}
     - target: {fileID: 6019464684381057221, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
       propertyPath: m_LocalPosition.x
       value: 19.26
       objectReference: {fileID: 0}
     - target: {fileID: 6019464684381057221, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.12
+      value: 0.34
       objectReference: {fileID: 0}
     - target: {fileID: 6019464684381057221, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6827,6 +6835,14 @@ PrefabInstance:
     - target: {fileID: 7123486931822352173, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 97954551
+      objectReference: {fileID: 0}
+    - target: {fileID: 7848110859529213591, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
+      propertyPath: m_GravityScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7848110859529213591, guid: 0112e2eab3c35a347b53074b3fda1c54, type: 3}
+      propertyPath: m_LinearDamping
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
