@@ -6,6 +6,7 @@ public class DialogueManager : MonoBehaviour
     [Header("UI References")]
     public GameObject dialoguePanel;
     public TextMeshProUGUI dialogueText;
+    public QuestManager questManager;
 
     [Header("Referensi Player")]
     // Ubah dari MonoBehaviour menjadi tipe spesifik MovementController
@@ -88,6 +89,12 @@ public class DialogueManager : MonoBehaviour
         if (movementController != null)
         {
             movementController.enabled = true;
+        }
+
+        if (questManager == null) questManager = FindFirstObjectByType<QuestManager>();
+        if (questManager != null)
+        {
+            questManager.GenerateNewQuest();
         }
     }
 }

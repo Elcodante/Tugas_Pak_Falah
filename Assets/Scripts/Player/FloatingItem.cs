@@ -18,34 +18,46 @@ public class FloatingItem : MonoBehaviour
 
     private Rigidbody2D rb;
     private bool isFalling = true;
-    private float spawnTime; // Waktu saat item pertama kali diciptakan
+    private float spawnTime;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 1f;
         isFalling = true;
-        spawnTime = Time.time; // Catat waktu spawn
+        spawnTime = Time.time;
     }
 
     void Update()
     {
         if (isBeingPickedUp && playerTarget != null)
         {
+            // Efek magnet menyedot ke arah player
             transform.position = Vector3.MoveTowards(transform.position, playerTarget.position, 8f * Time.deltaTime);
             transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, 15f * Time.deltaTime);
 
             if (Vector3.Distance(transform.position, playerTarget.position) < 0.2f)
             {
-                MiningController playerMining = playerTarget.GetComponent<MiningController>();
-                if (playerMining != null)
+                // --- KODE BARU: Memasukkan barang ke InventoryManager ---
+                InventoryManager inventory = playerTarget.GetComponent<InventoryManager>();
+                if (inventory != null)
                 {
-                    bool success = playerMining.AddItem(this);
-                    if (success) Destroy(gameObject);
+                    bool success = inventory.AddItem(itemTile, itemSprite);
+
+                    if (success)
+                    {
+                        Destroy(gameObject); // Hapus dari tanah jika berhasil masuk tas
+                    }
+                    else
+                    {
+                        // Jika tas penuh, batalkan sedotan dan kembalikan ukurannya
+                        isBeingPickedUp = false;
+                        transform.localScale = Vector3.one;
+                    }
                 }
             }
         }
-        else if (!isFalling)
+        else if (!isFalling && !isBeingPickedUp)
         {
             float newY = floatStartPos.y + Mathf.Sin(Time.time * speed) * amplitude;
             transform.position = new Vector3(transform.position.x, newY, transform.position.z);
@@ -68,15 +80,9 @@ public class FloatingItem : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Menyedot barang jika disentuh player (dan umurnya sudah lebih dari 0.5 detik)
         if (collision.CompareTag("Player") && !isBeingPickedUp && !isFalling && (Time.time - spawnTime > 0.5f))
         {
-            MiningController playerMining = collision.GetComponent<MiningController>();
-
-            if (playerMining != null && playerMining.blockCount >= 1)
-            {
-                return;
-            }
-
             isBeingPickedUp = true;
             playerTarget = collision.transform;
         }
