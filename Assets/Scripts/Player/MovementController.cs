@@ -67,6 +67,7 @@ public class MovementController : NetworkBehaviour
 
         anim.SetFloat("Speed", Mathf.Abs(horizontalInput));
         anim.SetBool("Jumping", !isGrounded);
+        anim.SetBool("IsHolding", isHoldingItem);
     }
 
     void FixedUpdate()

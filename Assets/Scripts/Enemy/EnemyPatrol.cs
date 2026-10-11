@@ -10,12 +10,16 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float damage = 10f;
 
     [Header("Sensor Tembok")]
-    [SerializeField] private Transform wallCheck;      // Masukkan objek WallCheck ke sini
-    [SerializeField] private LayerMask groundLayer;    // Pilih layer "Ground" di Inspector
-    [SerializeField] private float wallCheckRadius = 0.2f; // Ukuran lingkaran sensor
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float wallCheckRadius = 0.2f;
 
     private Rigidbody2D rb;
     private bool movingRight = true;
+
+    // Tambahan untuk logika Stun/Knockback
+    private bool isStunned = false;
+    private float stunTimer = 0f;
 
     void Start()
     {
@@ -24,6 +28,17 @@ public class EnemyPatrol : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Jika sedang terkena hit (Stun), kurangi waktu stun dan hentikan patroli
+        if (isStunned)
+        {
+            stunTimer -= Time.fixedDeltaTime;
+            if (stunTimer <= 0)
+            {
+                isStunned = false;
+            }
+            return; // Keluar dari FixedUpdate agar musuh tidak maksa jalan
+        }
+
         // 1. Cek apakah di depan ada tembok/tilemap
         bool isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, groundLayer);
 
@@ -37,7 +52,6 @@ public class EnemyPatrol : MonoBehaviour
         rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
     }
 
-    // Fungsi visual agar kita bisa melihat lingkaran sensor di Unity Editor
     private void OnDrawGizmos()
     {
         if (wallCheck != null)
@@ -49,20 +63,23 @@ public class EnemyPatrol : MonoBehaviour
 
     private void Flip()
     {
-        // Membalikkan status arah
         movingRight = !movingRight;
-
-        // Membalikkan visual sprite musuh (menghadap ke arah sebaliknya)
-        // Karena WallCheck adalah child dari musuh, posisinya akan ikut berbalik otomatis
         Vector3 localScale = transform.localScale;
         localScale.x *= -1f;
         transform.localScale = localScale;
     }
 
-    public void TakeDamage(float amount)
+    // FUNGSI DIPERBARUI: Menerima input dari pedang Player
+    public void TakeDamage(float amount, float hitDirection, float knockbackForce)
     {
         hp -= amount;
         Debug.Log("Musuh terkena damage! HP tersisa: " + hp);
+
+        isStunned = true;
+        stunTimer = 0.3f; 
+
+        rb.linearVelocity = Vector2.zero; 
+        rb.AddForce(new Vector2(hitDirection * knockbackForce, knockbackForce * 0.5f), ForceMode2D.Impulse);
 
         if (hp <= 0)
         {
@@ -72,30 +89,21 @@ public class EnemyPatrol : MonoBehaviour
 
     private void Die()
     {
-        // Hapus objek dari scene ketika HP habis
         Destroy(gameObject);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Langsung cek apakah yang ditabrak adalah Player
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Ambil identitas jaringannya
             NetworkObject playerNetObj = collision.gameObject.GetComponent<NetworkObject>();
 
-            // [PENTING] Hanya proses tabrakan jika layar ini adalah PEMILIK dari karakter tersebut!
-            // Artinya: Layar Host mendeteksi tabrakan Host, Layar Client mendeteksi tabrakan Client.
             if (playerNetObj != null && playerNetObj.IsOwner)
             {
                 PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
                 if (playerHealth != null)
                 {
                     float hitDirectionX = (collision.transform.position.x - transform.position.x > 0) ? 1f : -1f;
-
-                    // Karena kita hanya mengeksekusi ini dari layar si korban, 
-                    // reaksi akan instan tanpa delay!
-                    // Fungsi ini akan secara otomatis memanggil RPC ke Server.
                     playerHealth.TakeDamage(damage, hitDirectionX);
                 }
             }

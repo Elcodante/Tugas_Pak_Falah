@@ -130,6 +130,32 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -142,7 +168,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -164,7 +190,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -186,7 +212,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -208,7 +234,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -230,7 +256,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -252,7 +278,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -274,7 +300,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -296,7 +322,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -323,7 +349,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":37.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.4324324429035187,"y":0.125},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":1,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":37.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.4324324131011963,"y":0.125},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       spr_player1_carrywalk_0: -5901997455995070523
       spr_player1_carrywalk_1: -2798952932988615519

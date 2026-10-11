@@ -168,7 +168,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -190,7 +190,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -212,7 +212,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -234,7 +234,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -256,7 +256,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -278,7 +278,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -300,7 +300,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -322,7 +322,7 @@ TextureImporter:
         width: 37
         height: 32
       alignment: 9
-      pivot: {x: 0.43243244, y: 0.125}
+      pivot: {x: 0.4324324, y: 0.125}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -349,7 +349,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":37.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.4324324429035187,"y":0.125},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":1,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":37.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.4324324131011963,"y":0.125},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       spr_player1_walk_0: -9066385721490019826
       spr_player1_walk_1: 4804696012596692606
