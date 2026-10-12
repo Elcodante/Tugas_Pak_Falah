@@ -458,6 +458,7 @@ MonoBehaviour:
   - Hallo
   - Test 1
   - Test 2
+  dialogueSelesai: []
   dialogueManager: {fileID: 1594870677}
   UIIndikator: {fileID: 1929215286}
 --- !u!1 &108404232
@@ -11948,6 +11949,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueManager
   dialoguePanel: {fileID: 1594870673}
   dialogueText: {fileID: 501136987}
+  questManager: {fileID: 0}
   movementController: {fileID: 0}
 --- !u!1 &1600281120
 GameObject:

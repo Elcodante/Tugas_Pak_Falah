@@ -103,6 +103,7 @@ public class EnemyPatrol : MonoBehaviour
                 PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
                 if (playerHealth != null)
                 {
+
                     float hitDirectionX = (collision.transform.position.x - transform.position.x > 0) ? 1f : -1f;
                     playerHealth.TakeDamage(damage, hitDirectionX);
                 }
