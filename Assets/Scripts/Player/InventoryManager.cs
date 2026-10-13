@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using TMPro;
 using System.Collections;
+using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class InventorySlot
@@ -16,9 +18,9 @@ public class InventorySlot
     public bool IsFull() { return count >= maxStack; }
 }
 
-public class InventoryManager : MonoBehaviour
+public class InventoryManager : NetworkBehaviour
 {
-    [Header("Data Inventori")]
+    [Header("Data Inventori Lokal")]
     public InventorySlot[] slots = new InventorySlot[12];
     public int activeSlotIndex = 0;
 
@@ -27,54 +29,94 @@ public class InventoryManager : MonoBehaviour
     private MovementController moveControl;
     private MiningController miningControl;
 
-    [Header("Referensi UI (Posisi & Bingkai)")]
-    public GameObject mainInventoryPanel;
-    public RectTransform highlightBox;
-    public RectTransform[] hotbarUI;
-
-    [Header("Referensi Visual (Ikon & Angka)")]
-    public Image[] slotIcons;
-    public TMP_Text[] slotTexts;
-
-    [Header("Sistem Drag & Drop")]
-    public GameObject dragIconObject; // Objek Drag_Icon milikmu
+    // Variabel UI internal (Tidak perlu diisi di Inspector Player lagi)
+    private GameObject mainInventoryPanel;
+    private RectTransform highlightBox;
+    private RectTransform[] hotbarUI;
+    private Image[] slotIcons;
+    private TMP_Text[] slotTexts;
+    private GameObject dragIconObject;
     private Image dragIconImage;
+
     private int draggedSlotIndex = -1;
     private bool isDragging = false;
+    private bool isUIReady = false;
 
-    IEnumerator Start()
+    private void Awake()
     {
         moveControl = GetComponent<MovementController>();
         miningControl = GetComponent<MiningController>();
-
-        if (dragIconObject != null)
-        {
-            dragIconImage = dragIconObject.GetComponent<Image>();
-            dragIconObject.SetActive(false); // Sembunyikan ikon bayangan di awal
-        }
 
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = new InventorySlot();
         }
+    }
 
-        yield return new WaitForEndOfFrame();
-        SelectHotbar(0);
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            StartCoroutine(ConnectToUI());
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsOwner) SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex != 0 && IsOwner) StartCoroutine(ConnectToUI());
+    }
+
+    // Mengambil semua referensi dari Canvas secara otomatis!
+    private IEnumerator ConnectToUI()
+    {
+        isUIReady = false;
+
+        // Tunggu sampai InventoryUIManager muncul di scene
+        yield return new WaitUntil(() => InventoryUIManager.Instance != null);
+
+        InventoryUIManager ui = InventoryUIManager.Instance;
+        mainInventoryPanel = ui.mainInventoryPanel;
+        highlightBox = ui.highlightBox;
+        hotbarUI = ui.hotbarUI;
+        slotIcons = ui.slotIcons;
+        slotTexts = ui.slotTexts;
+        dragIconObject = ui.dragIconObject;
+
+        if (dragIconObject != null)
+        {
+            dragIconImage = dragIconObject.GetComponent<Image>();
+        }
+
+        isUIReady = true;
+
+        // Segarkan tampilan
+        SelectHotbar(activeSlotIndex);
         UpdateAllSlotsUI();
+        Debug.Log($"[Inventory] Player {OwnerClientId} berhasil terhubung ke UI Inventori!");
     }
 
     void Update()
     {
+        // Hanya Owner yang boleh menekan tombol inventori
+        if (!IsOwner || !isUIReady) return;
+
         if (Input.GetKeyDown(KeyCode.I)) mainInventoryPanel.SetActive(!mainInventoryPanel.activeSelf);
         if (Input.GetKeyDown(KeyCode.Alpha1)) SelectHotbar(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) SelectHotbar(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) SelectHotbar(2);
 
-        if (Input.GetKeyDown(KeyCode.B)) DropItem(activeSlotIndex); // Lempar dari kotak yang aktif
+        if (Input.GetKeyDown(KeyCode.B)) DropItem(activeSlotIndex);
     }
 
     public void SelectHotbar(int index)
     {
+        if (!isUIReady) return;
         activeSlotIndex = index;
         if (highlightBox != null && hotbarUI.Length > index) highlightBox.position = hotbarUI[index].position;
         UpdateEquipVisual();
@@ -82,6 +124,8 @@ public class InventoryManager : MonoBehaviour
 
     public bool AddItem(TileBase tile, Sprite sprite)
     {
+        if (!IsOwner) return false;
+
         for (int i = 0; i < slots.Length; i++)
         {
             if (!slots[i].IsEmpty() && slots[i].itemTile == tile && !slots[i].IsFull())
@@ -107,56 +151,49 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
+    // --- SISTEM DRAG & DROP ---
     public void BeginDrag(InventorySlotUI slotUI)
     {
-        // Tolak jika menggeser kotak sampah atau kotak kosong
-        if (slotUI.slotIndex < 0 || slots[slotUI.slotIndex].IsEmpty()) return;
+        if (!IsOwner || !isUIReady || slotUI.slotIndex < 0 || slots[slotUI.slotIndex].IsEmpty()) return;
 
         isDragging = true;
         draggedSlotIndex = slotUI.slotIndex;
-
-        // Munculkan ikon bayangan yang mengikuti mouse
         dragIconImage.sprite = slots[draggedSlotIndex].itemSprite;
         dragIconObject.SetActive(true);
         dragIconObject.transform.position = Input.mousePosition;
-
-        // Bikin gambar item di kotak asalnya jadi agak pudar (transparan) selama ditarik
         slotIcons[draggedSlotIndex].color = new Color(1, 1, 1, 0.5f);
     }
 
     public void OnDrag()
     {
-        if (!isDragging) return;
-        // Posisikan ikon bayangan persis di ujung kursor mouse
+        if (!IsOwner || !isDragging) return;
         dragIconObject.transform.position = Input.mousePosition;
     }
 
     public void EndDrag()
     {
-        if (!isDragging) return;
+        if (!IsOwner || !isDragging) return;
         isDragging = false;
-        dragIconObject.SetActive(false); // Sembunyikan ikon bayangan
+        dragIconObject.SetActive(false);
 
-        // Update tampilan kotak asal agar warnanya tidak pudar lagi
         if (draggedSlotIndex != -1)
         {
             UpdateSlotUI(draggedSlotIndex);
             UpdateEquipVisual();
-            draggedSlotIndex = -1; // Reset dilakukan di akhir sini!
+            draggedSlotIndex = -1;
         }
     }
 
     public void ReceiveDrop(InventorySlotUI targetSlotUI)
     {
-        if (!isDragging || draggedSlotIndex == -1) return;
+        if (!IsOwner || !isDragging || draggedSlotIndex == -1) return;
 
         int targetIndex = targetSlotUI.slotIndex;
 
-        // Skenario Buang ke Kotak Sampah
         if (targetIndex == -1)
         {
             DropItem(draggedSlotIndex);
-            return; // Hapus reset -1 di sini
+            return;
         }
 
         if (targetIndex == draggedSlotIndex) return;
@@ -164,13 +201,11 @@ public class InventoryManager : MonoBehaviour
         InventorySlot sourceSlot = slots[draggedSlotIndex];
         InventorySlot targetSlot = slots[targetIndex];
 
-        // Skenario A: Pindah ke Kotak Kosong
         if (targetSlot.IsEmpty())
         {
             slots[targetIndex] = sourceSlot;
             slots[draggedSlotIndex] = new InventorySlot();
         }
-        // Skenario B: Tumpuk (Stack)
         else if (targetSlot.itemTile == sourceSlot.itemTile)
         {
             int total = targetSlot.count + sourceSlot.count;
@@ -185,7 +220,6 @@ public class InventoryManager : MonoBehaviour
                 sourceSlot.count = total - targetSlot.maxStack;
             }
         }
-        // Skenario C: Tukar Posisi (Swap)
         else
         {
             InventorySlot temp = slots[targetIndex];
@@ -193,47 +227,44 @@ public class InventoryManager : MonoBehaviour
             slots[draggedSlotIndex] = temp;
         }
 
-        // Perbarui tampilan kedua kotak
         UpdateSlotUI(draggedSlotIndex);
         UpdateSlotUI(targetIndex);
-        // Hapus reset -1 di sini
     }
 
+    // --- SISTEM DROP MULTIPLAYER ---
     private void DropItem(int indexToDrop)
     {
+        if (!IsOwner) return;
+
         InventorySlot slotToDrop = slots[indexToDrop];
         if (slotToDrop.IsEmpty()) return;
 
         GetComponent<Animator>().SetTrigger("Drop");
 
-        GameObject prefabToDrop = null;
+        // Cari tahu Index mapping dari item yang akan dibuang (agar Server tahu item apa ini)
+        int mappingIndex = -1;
         if (miningControl != null)
         {
-            foreach (BlockMapping mapping in miningControl.blockMappings)
+            for (int i = 0; i < miningControl.blockMappings.Length; i++)
             {
-                if (mapping.blockTile == slotToDrop.itemTile)
+                if (miningControl.blockMappings[i].blockTile == slotToDrop.itemTile)
                 {
-                    prefabToDrop = mapping.dropPrefab;
+                    mappingIndex = i;
                     break;
                 }
             }
         }
 
-        if (prefabToDrop != null)
+        // Panggil Server untuk membuang barang fisiknya
+        if (mappingIndex != -1)
         {
             float arahX = (transform.localScale.x < 0) ? -1f : 1f;
             Vector3 spawnPos = transform.position + new Vector3(arahX * 1.0f, 0.2f, 0);
 
-            GameObject droppedItem = Instantiate(prefabToDrop, spawnPos, Quaternion.identity);
-            Rigidbody2D rb = droppedItem.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                Vector2 throwDirection = new Vector2(arahX, 0.5f).normalized;
-                rb.AddForce(throwDirection * 5f, ForceMode2D.Impulse);
-            }
+            SpawnDropItemServerRpc(mappingIndex, spawnPos, arahX);
         }
 
-        // Kurangi jumlah
+        // Kurangi jumlah item di inventory lokal
         slotToDrop.count--;
         if (slotToDrop.count <= 0)
         {
@@ -245,6 +276,29 @@ public class InventoryManager : MonoBehaviour
         UpdateEquipVisual();
     }
 
+    [Rpc(SendTo.Server)]
+    private void SpawnDropItemServerRpc(int mappingIndex, Vector3 spawnPos, float arahX)
+    {
+        if (miningControl == null || mappingIndex < 0 || mappingIndex >= miningControl.blockMappings.Length) return;
+
+        GameObject prefabToDrop = miningControl.blockMappings[mappingIndex].dropPrefab;
+        if (prefabToDrop != null)
+        {
+            GameObject droppedItem = Instantiate(prefabToDrop, spawnPos, Quaternion.identity);
+
+            NetworkObject netObj = droppedItem.GetComponent<NetworkObject>();
+            if (netObj != null) netObj.Spawn(); // Tampilkan ke semua pemain
+
+            Rigidbody2D rb = droppedItem.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                Vector2 throwDirection = new Vector2(arahX, 0.5f).normalized;
+                rb.AddForce(throwDirection * 5f, ForceMode2D.Impulse);
+            }
+        }
+    }
+
+    // --- UI UPDATER LOKAL ---
     private void UpdateEquipVisual()
     {
         if (heldItemVisual == null) return;
@@ -264,6 +318,8 @@ public class InventoryManager : MonoBehaviour
 
     private void UpdateSlotUI(int index)
     {
+        if (!isUIReady) return;
+
         if (!slots[index].IsEmpty())
         {
             slotIcons[index].sprite = slots[index].itemSprite;
@@ -280,6 +336,47 @@ public class InventoryManager : MonoBehaviour
 
     private void UpdateAllSlotsUI()
     {
+        if (!isUIReady) return;
         for (int i = 0; i < slots.Length; i++) UpdateSlotUI(i);
+    }
+
+    // --- SISTEM PENGURANGAN ITEM (UNTUK QUEST) ---
+    // PERBAIKAN: Sekarang menggunakan Sprite agar pencocokan 100% akurat
+    public int RemoveItem(Sprite targetSprite, int amountToRemove)
+    {
+        if (targetSprite == null || amountToRemove <= 0) return 0;
+
+        int removed = 0;
+
+        // Cek semua kotak dari awal sampai akhir
+        for (int i = 0; i < slots.Length; i++)
+        {
+            // PENGAMAN: Bandingkan berdasarkan nama gambar (Sprite). Ini dijamin pasti cocok!
+            if (!slots[i].IsEmpty() && slots[i].itemSprite != null && slots[i].itemSprite.name == targetSprite.name)
+            {
+                // Jika isi kotak lebih sedikit atau pas dengan yang dibutuhkan
+                if (slots[i].count <= (amountToRemove - removed))
+                {
+                    removed += slots[i].count;
+                    slots[i].count = 0;
+                    slots[i].itemTile = null;
+                    slots[i].itemSprite = null;
+                }
+                // Jika isi kotak lebih banyak dari sisa yang dibutuhkan
+                else
+                {
+                    slots[i].count -= (amountToRemove - removed);
+                    removed = amountToRemove;
+                }
+
+                UpdateSlotUI(i);
+
+                // Jika sudah mengambil sesuai jumlah target, hentikan pencarian
+                if (removed >= amountToRemove) break;
+            }
+        }
+
+        UpdateEquipVisual();
+        return removed; // Kembalikan jumlah barang yang sukses ditarik
     }
 }

@@ -1,48 +1,42 @@
 using UnityEngine;
-using UnityEngine.EventSystems; 
+using UnityEngine.EventSystems;
+using Unity.Netcode; // Wajib ditambahkan
 
 public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
     [Header("Identitas Kotak")]
     public int slotIndex = -1;
 
-    private InventoryManager inventoryManager;
-
-    void Start()
+    // Fungsi cerdas untuk selalu mencari Inventory milik KITA SENDIRI, bukan milik pemain lain
+    private InventoryManager GetLocalInventory()
     {
-        // Mencari script InventoryManager yang ada di Player
-        inventoryManager = FindFirstObjectByType<InventoryManager>();
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
+        {
+            if (NetworkManager.Singleton.LocalClient.PlayerObject != null)
+            {
+                return NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<InventoryManager>();
+            }
+        }
+        return null;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (inventoryManager != null)
-        {
-            inventoryManager.BeginDrag(this);
-        }
+        GetLocalInventory()?.BeginDrag(this);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (inventoryManager != null)
-        {
-            inventoryManager.OnDrag();
-        }
+        GetLocalInventory()?.OnDrag();
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (inventoryManager != null)
-        {
-            inventoryManager.EndDrag();
-        }
+        GetLocalInventory()?.EndDrag();
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        if (inventoryManager != null)
-        {
-            inventoryManager.ReceiveDrop(this);
-        }
+        GetLocalInventory()?.ReceiveDrop(this);
     }
 }
