@@ -2,7 +2,6 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
 using System.Collections;
-
 public class BossController : NetworkBehaviour
 {
     [Header("Statistik Dasar")]
@@ -23,8 +22,11 @@ public class BossController : NetworkBehaviour
     private bool isFighting = false;
     private float attackTimer = 0f;
 
+    private SpriteRenderer spriteRenderer;
+
     public override void OnNetworkSpawn()
     {
+        spriteRenderer = GetComponent<SpriteRenderer>();
         if (IsServer)
         {
             actualMaxHealth = baseMaxHealth;
@@ -178,9 +180,46 @@ public class BossController : NetworkBehaviour
         }
     }
 
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void TakeDamageRpc(float amount)
+    {
+        if (!isFighting) return;
+
+        currentHealth.Value -= amount;
+
+        // Perintahkan semua pemain melihat bos kedap-kedip (tanpa terpental)
+        FlashEffectRpc();
+
+        if (currentHealth.Value <= 0)
+        {
+            Die();
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void FlashEffectRpc()
+    {
+        StartCoroutine(DamageFlasher());
+    }
+
+    private IEnumerator DamageFlasher()
+    {
+        if (spriteRenderer == null) yield break;
+
+        // Kedap-kedip: Alpha 0 -> 1 -> 0 -> 1
+        for (int i = 0; i < 2; i++)
+        {
+            spriteRenderer.color = new Color(1f, 1f, 1f, 0f); // Tembus pandang
+            yield return new WaitForSeconds(0.1f);
+            spriteRenderer.color = new Color(1f, 1f, 1f, 1f); // Terlihat
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
     private void Die()
     {
         isFighting = false;
-        NetworkObject.Despawn(); // Bos mati dan hancur
+        NetworkObject.Despawn(false); // Bos mati dan hancur
+        gameObject.SetActive(false); // Nonaktifkan bos di scene
     }
 }

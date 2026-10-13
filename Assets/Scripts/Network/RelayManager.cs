@@ -193,12 +193,23 @@ public class RelayManager : MonoBehaviour
         PlayerPrefs.SetInt("IsMultiplayer", 0); // Penanda mode single-player
         PlayerPrefs.Save();
 
-        // 1. Memulai NetworkManager sebagai Host Lokal (Offline)
-        // Kita tidak menggunakan Relay (internet) di sini, murni koneksi lokal di komputer Anda sendiri.
-        NetworkManager.Singleton.StartHost();
+        // 1. PENGAMAN: Cek apakah jaringan sudah menyala. Jika belum, coba nyalakan.
+        if (!NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsClient)
+        {
+            bool isHostStarted = NetworkManager.Singleton.StartHost();
 
-        // 2. Gunakan SceneManager milik NetworkManager untuk pindah scene!
-        // INI SANGAT PENTING agar NetworkManager tahu ia harus memindahkan Player ke scene baru.
-        NetworkManager.Singleton.SceneManager.LoadScene("In_Game", LoadSceneMode.Single);
+            // Jika gagal menyala (misal karena Port 7777 bentrok), hentikan fungsi di sini!
+            if (!isHostStarted)
+            {
+                Debug.LogError("Gagal memulai Host Lokal. Port 7777 sedang dipakai oleh proses lain.");
+                return;
+            }
+        }
+
+        // 2. Pindah Scene (Aman dari NullReferenceException karena dipastikan Host sudah jalan)
+        if (NetworkManager.Singleton.IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene("In_Game", LoadSceneMode.Single);
+        }
     }
 }

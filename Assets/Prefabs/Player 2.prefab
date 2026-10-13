@@ -485,7 +485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 292452448
+  GlobalObjectIdHash: 1688657011
   InScenePlacedSourceGlobalObjectIdHash: 1688657011
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -740,12 +740,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb003cdf1b64ad644ba3ede940fdb6f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MiningController
+  ShowTopMostFoldoutHeaderGroup: 1
   maxMineDistance: 1.5
-  targetTilemap: {fileID: 0}
   timeToMine: 3
   blockMappings:
   - blockTile: {fileID: 11400000, guid: 76592efa340fba44aacc8123eec73d21, type: 2}
     dropPrefab: {fileID: 8147571093529983272, guid: 4d665adfe4d9ec448b0331cc0d4c5e3b, type: 3}
+  tilemapName: Mining
 --- !u!114 &6105473291729534387
 MonoBehaviour:
   m_ObjectHideFlags: 0

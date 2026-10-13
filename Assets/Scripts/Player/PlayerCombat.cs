@@ -28,16 +28,15 @@ public class PlayerCombat : NetworkBehaviour
 
     void Update()
     {
-        // if (!IsOwner) return;
+        // PENTING: Wajib diaktifkan agar pemain lain tidak "merasuki" pedang Anda
+        if (!IsOwner) return;
 
         if (moveControl != null && moveControl.isHoldingItem) return;
         if (Input.GetMouseButton(1)) return;
+
         if (Input.GetMouseButtonDown(0) && Time.time >= nextAttackTime)
         {
-            if (EventSystem.current.IsPointerOverGameObject())
-            {
-                return;
-            }
+            if (EventSystem.current.IsPointerOverGameObject()) return;
             Attack();
         }
     }
@@ -51,11 +50,23 @@ public class PlayerCombat : NetworkBehaviour
 
         foreach (Collider2D enemy in hitEnemies)
         {
-            EnemyPatrol enemyScript = enemy.GetComponent<EnemyPatrol>();
+            // Tentukan dari arah mana kita menebas (untuk knockback)
+            float hitDirection = (enemy.transform.position.x > transform.position.x) ? 1f : -1f;
+
+            // 1. Cek apakah yang ditebas adalah Musuh Biasa
+            EnemyPatrol enemyScript = enemy.GetComponentInParent<EnemyPatrol>();
             if (enemyScript != null)
             {
-                float hitDirection = (enemy.transform.position.x > transform.position.x) ? 1f : -1f;
-                enemyScript.TakeDamage(attackDamage, hitDirection, knockbackForce);
+                // Beritahu server untuk melukai musuh ini
+                enemyScript.TakeDamageRpc(attackDamage, hitDirection, knockbackForce);
+            }
+
+            // 2. Cek apakah yang ditebas adalah Bos
+            BossController bossScript = enemy.GetComponentInParent<BossController>();
+            if (bossScript != null)
+            {
+                // Beritahu server untuk melukai bos ini
+                bossScript.TakeDamageRpc(attackDamage);
             }
         }
     }

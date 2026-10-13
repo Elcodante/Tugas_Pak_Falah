@@ -28,8 +28,8 @@ public class NPCInteract : MonoBehaviour
 
     private void Update()
     {
-        // GEMBOK PERMANEN: Kalau misi udah tamat, matikan interaksi total
-        if (questManager != null && questManager.isQuestFinishedCompletely)
+        // PERBAIKAN: Tambahkan .Value untuk membaca isi dari NetworkVariable
+        if (questManager != null && questManager.isQuestFinishedCompletely.Value)
         {
             UIIndikator.SetActive(false);
             return;
@@ -39,8 +39,8 @@ public class NPCInteract : MonoBehaviour
         {
             if (questManager != null)
             {
-                // SKENARIO 2: Player kembali untuk lapor misi
-                if (questManager.isReadyToReport)
+                // PERBAIKAN: Tambahkan .Value
+                if (questManager.isReadyToReport.Value)
                 {
                     questManager.ReportQuest(); // Hilangkan UI di kanan atas
 
@@ -52,8 +52,8 @@ public class NPCInteract : MonoBehaviour
                     return;
                 }
 
-                // SKENARIO 3: Player ngajak ngobrol saat misi belum beres (kristal kurang)
-                if (questManager.isQuestActive)
+                // PERBAIKAN: Tambahkan .Value
+                if (questManager.isQuestActive.Value)
                 {
                     // Bebas, untuk sekarang kita diamkan saja (tidak ada interaksi)
                     return;
@@ -69,8 +69,8 @@ public class NPCInteract : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            // Jangan munculkan indikator tombol 'E' kalau misi sudah tamat
-            if (questManager != null && questManager.isQuestFinishedCompletely) return;
+            // PERBAIKAN: Tambahkan .Value
+            if (questManager != null && questManager.isQuestFinishedCompletely.Value) return;
 
             isPlayerNearby = true;
             UIIndikator.SetActive(true);
