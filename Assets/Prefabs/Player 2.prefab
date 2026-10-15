@@ -393,7 +393,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 6200000, guid: e24868903b547ad43bb4a8eafa04cce5, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -696,7 +696,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   walkSpeed: 3
   runSpeed: 6
-  jumpForce: 5
+  jumpForce: 12
   groundCheck: {fileID: 4970840218905064333}
   groundLayer:
     serializedVersion: 2
@@ -759,6 +759,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c33f5f9ab8e335a409800d6a05b2dd28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
+  ShowTopMostFoldoutHeaderGroup: 1
   slots:
   - itemTile: {fileID: 0}
     itemSprite: {fileID: 0}
@@ -810,39 +811,6 @@ MonoBehaviour:
     maxStack: 5
   activeSlotIndex: 0
   heldItemVisual: {fileID: 3825109095841387553}
-  mainInventoryPanel: {fileID: 0}
-  highlightBox: {fileID: 0}
-  hotbarUI:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  slotIcons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  slotTexts:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  dragIconObject: {fileID: 0}
 --- !u!114 &2378417632124581251
 MonoBehaviour:
   m_ObjectHideFlags: 0
