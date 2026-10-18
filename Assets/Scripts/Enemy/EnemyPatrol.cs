@@ -30,27 +30,33 @@ public class EnemyPatrol : NetworkBehaviour
     // Status Stun disinkronkan ke seluruh pemain
     public NetworkVariable<bool> isStunned = new NetworkVariable<bool>(false);
     private float stunTimer = 0f;
+    private bool isDead = false; // Pengaman tambahan agar tidak mati 2x
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        stepTimer = stepDelay; // Mulai dengan jeda dulu
+        stepTimer = stepDelay;
+    }
+
+    // [KUNCI PERBAIKAN] Otomatis terpanggil di Server DAN semua Client saat Despawn!
+    public override void OnNetworkDespawn()
+    {
+        isDead = true;
+        StopAllCoroutines(); // Hentikan efek kedap-kedip jika sedang berjalan
+        gameObject.SetActive(false); // Matikan fisik & visual musuh di layar SEMUA pemain!
     }
 
     private void FixedUpdate()
     {
-        // Hanya Server yang menggerakkan fisik musuh
-        if (!IsServer) return;
+        if (!IsServer || isDead) return;
 
-        // Sedang terkena hit (Stun)
         if (isStunned.Value)
         {
             stunTimer -= Time.fixedDeltaTime;
             if (stunTimer <= 0)
             {
                 isStunned.Value = false;
-                // Setelah stun, ulangi dari jeda agar tidak langsung dash
                 isDashing = false;
                 stepTimer = stepDelay;
             }
@@ -61,7 +67,6 @@ public class EnemyPatrol : NetworkBehaviour
 
         if (isDashing)
         {
-            // Balik arah jika menabrak tembok saat melangkah
             if (Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, groundLayer))
                 Flip();
 
@@ -70,7 +75,6 @@ public class EnemyPatrol : NetworkBehaviour
 
             if (stepTimer <= 0f)
             {
-                // Langkah selesai -> berhenti
                 isDashing = false;
                 stepTimer = stepDelay;
                 rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
@@ -78,12 +82,10 @@ public class EnemyPatrol : NetworkBehaviour
         }
         else
         {
-            // Fase diam: tahan posisi horizontal
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
 
             if (stepTimer <= 0f)
             {
-                // Mulai langkah berikutnya
                 isDashing = true;
                 stepTimer = dashDuration;
             }
@@ -102,7 +104,19 @@ public class EnemyPatrol : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void TakeDamageRpc(float amount, float hitDirection, float knockback)
     {
+        if (isDead) return;
+
         hp -= amount;
+
+        // Cek kematian terlebih dahulu sebelum memicu efek visual/fisika
+        if (hp <= 0)
+        {
+            isDead = true;
+            // Memanggil Despawn(false) akan otomatis memicu OnNetworkDespawn() di semua layar pemain
+            NetworkObject.Despawn(false);
+            return;
+        }
+
         isStunned.Value = true;
         stunTimer = 0.3f;
 
@@ -110,17 +124,12 @@ public class EnemyPatrol : NetworkBehaviour
         rb.AddForce(new Vector2(hitDirection * knockback, knockback * 0.5f), ForceMode2D.Impulse);
 
         FlashEffectRpc();
-
-        if (hp <= 0)
-        {
-            NetworkObject.Despawn(false);
-            gameObject.SetActive(false);
-        }
     }
 
     [Rpc(SendTo.Everyone)]
     private void FlashEffectRpc()
     {
+        if (!gameObject.activeInHierarchy) return;
         StartCoroutine(DamageFlasher());
     }
 
@@ -145,7 +154,8 @@ public class EnemyPatrol : NetworkBehaviour
 
     private void TryDamagePlayer(GameObject targetObject)
     {
-        if (isStunned.Value) return;
+        // Pengaman ganda: jika sedang stun, sudah mati, atau sudah tidak terhubung ke jaringan, batalkan damage!
+        if (isDead || !IsSpawned || isStunned.Value) return;
 
         PlayerHealth playerHealth = targetObject.GetComponentInParent<PlayerHealth>();
         if (playerHealth != null)

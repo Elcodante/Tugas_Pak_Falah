@@ -180,25 +180,36 @@ public class BossController : NetworkBehaviour
         }
     }
 
+    // [TAMBAHKAN INI DI BAWAH OnNetworkSpawn]
+    public override void OnNetworkDespawn()
+    {
+        isFighting = false;
+        StopAllCoroutines();
+        gameObject.SetActive(false); // Matikan Bos di layar Host maupun seluruh Client
+    }
+
+    // --- SISTEM DAMAGE (GANTI BAGIAN BAWAH SCRIPT BOS DENGAN INI) ---
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void TakeDamageRpc(float amount)
     {
-        if (!isFighting) return;
+        if (!isFighting || currentHealth.Value <= 0) return;
 
         currentHealth.Value -= amount;
-
-        // Perintahkan semua pemain melihat bos kedap-kedip (tanpa terpental)
-        FlashEffectRpc();
 
         if (currentHealth.Value <= 0)
         {
             Die();
+            return; // Jangan jalankan FlashEffectRpc jika bos sudah mati
         }
+
+        // Perintahkan semua pemain melihat bos kedap-kedip (tanpa terpental)
+        FlashEffectRpc();
     }
 
     [Rpc(SendTo.Everyone)]
     private void FlashEffectRpc()
     {
+        if (!gameObject.activeInHierarchy) return;
         StartCoroutine(DamageFlasher());
     }
 
@@ -206,12 +217,11 @@ public class BossController : NetworkBehaviour
     {
         if (spriteRenderer == null) yield break;
 
-        // Kedap-kedip: Alpha 0 -> 1 -> 0 -> 1
         for (int i = 0; i < 2; i++)
         {
-            spriteRenderer.color = new Color(1f, 1f, 1f, 0f); // Tembus pandang
+            spriteRenderer.color = new Color(1f, 1f, 1f, 0f);
             yield return new WaitForSeconds(0.1f);
-            spriteRenderer.color = new Color(1f, 1f, 1f, 1f); // Terlihat
+            spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
             yield return new WaitForSeconds(0.1f);
         }
     }
@@ -219,7 +229,7 @@ public class BossController : NetworkBehaviour
     private void Die()
     {
         isFighting = false;
-        NetworkObject.Despawn(false); // Bos mati dan hancur
-        gameObject.SetActive(false); // Nonaktifkan bos di scene
+        // Cukup panggil Despawn(false), maka OnNetworkDespawn() akan mematikan objek di semua layar
+        NetworkObject.Despawn(false);
     }
 }

@@ -232,6 +232,7 @@ public class InventoryManager : NetworkBehaviour
     }
 
     // --- SISTEM DROP MULTIPLAYER ---
+    // --- SISTEM DROP MULTIPLAYER ---
     private void DropItem(int indexToDrop)
     {
         if (!IsOwner) return;
@@ -239,9 +240,7 @@ public class InventoryManager : NetworkBehaviour
         InventorySlot slotToDrop = slots[indexToDrop];
         if (slotToDrop.IsEmpty()) return;
 
-        GetComponent<Animator>().SetTrigger("Drop");
-
-        // Cari tahu Index mapping dari item yang akan dibuang (agar Server tahu item apa ini)
+        // Panggil Server untuk membuang barang fisiknya via jaringan
         int mappingIndex = -1;
         if (miningControl != null)
         {
@@ -255,16 +254,16 @@ public class InventoryManager : NetworkBehaviour
             }
         }
 
-        // Panggil Server untuk membuang barang fisiknya
         if (mappingIndex != -1)
         {
             float arahX = (transform.localScale.x < 0) ? -1f : 1f;
             Vector3 spawnPos = transform.position + new Vector3(arahX * 1.0f, 0.2f, 0);
 
+            // Kirim permintaan drop ke Server
             SpawnDropItemServerRpc(mappingIndex, spawnPos, arahX);
         }
 
-        // Kurangi jumlah item di inventory lokal
+        // Kurangi jumlah item di inventory lokal pemilik
         slotToDrop.count--;
         if (slotToDrop.count <= 0)
         {
@@ -276,7 +275,7 @@ public class InventoryManager : NetworkBehaviour
         UpdateEquipVisual();
     }
 
-    [Rpc(SendTo.Server)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void SpawnDropItemServerRpc(int mappingIndex, Vector3 spawnPos, float arahX)
     {
         if (miningControl == null || mappingIndex < 0 || mappingIndex >= miningControl.blockMappings.Length) return;
@@ -287,7 +286,10 @@ public class InventoryManager : NetworkBehaviour
             GameObject droppedItem = Instantiate(prefabToDrop, spawnPos, Quaternion.identity);
 
             NetworkObject netObj = droppedItem.GetComponent<NetworkObject>();
-            if (netObj != null) netObj.Spawn(); // Tampilkan ke semua pemain
+            if (netObj != null)
+            {
+                netObj.Spawn(); // Spawn resmi di Server agar muncul di semua klien tanpa duplikasi
+            }
 
             Rigidbody2D rb = droppedItem.GetComponent<Rigidbody2D>();
             if (rb != null)
