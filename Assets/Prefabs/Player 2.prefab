@@ -811,6 +811,13 @@ MonoBehaviour:
     maxStack: 5
   activeSlotIndex: 0
   heldItemVisual: {fileID: 3825109095841387553}
+  allGameItemSprites:
+  - {fileID: -5652021878662206163, guid: a3c338243f701d843b390238eb3c01d1, type: 3}
+  syncedHeldItemIndex:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: -1
 --- !u!114 &2378417632124581251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -879,7 +886,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8031317009177807367
 Transform:
   m_ObjectHideFlags: 0

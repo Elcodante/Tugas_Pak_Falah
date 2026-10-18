@@ -21,7 +21,7 @@ public class RelayManager : MonoBehaviour
 
     [Header("UI Host Room")]
     public TextMeshProUGUI textRoomID;
-    public TextMeshProUGUI[] textPlayerNames; // Array untuk 4 teks nama pemain
+    public TextMeshProUGUI[] textPlayerNames;
 
     [Header("UI Lobby")]
     public TMP_InputField inputNickname;
@@ -40,41 +40,39 @@ public class RelayManager : MonoBehaviour
 
     private async void Start()
     {
-        if (textWarningName != null)
-        {
-            textWarningName.SetActive(false); // Sembunyikan peringatan nama kosong saat game dimulai
-        }
+        if (textWarningName != null) textWarningName.SetActive(false);
+
         await UnityServices.InitializeAsync();
         AuthenticationService.Instance.SignedIn += () =>
         {
             Debug.Log("Login Unity Services berhasil.");
         };
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
-        // UBAH DI SINI: Sembunyikan semua panel jaringan saat game baru dimulai
+        if (!AuthenticationService.Instance.IsSignedIn)
+        {
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        }
+
         panelLobbySelection.SetActive(false);
         panelHostRoom.SetActive(false);
         panelJoinRoom.SetActive(false);
     }
 
-    // TAMBAHKAN FUNGSI BARU INI:
     public void Button_OpenLobbySelection()
     {
         ShowPanel(panelLobbySelection);
     }
 
-    // --- FUNGSI NAVIGASI UI ---
     public void Button_OpenHostPanel()
     {
         if (string.IsNullOrWhiteSpace(inputNickname.text))
         {
             Debug.LogWarning("GAGAL: Nickname harus diisi terlebih dahulu!");
-            textWarningName.SetActive(true); // Tampilkan peringatan nama kosong
-            return; 
+            textWarningName.SetActive(true);
+            return;
         }
 
         SavePlayerData();
-
         CreateRelay();
         ShowPanel(panelHostRoom);
     }
@@ -84,8 +82,8 @@ public class RelayManager : MonoBehaviour
         if (string.IsNullOrWhiteSpace(inputNickname.text))
         {
             Debug.LogWarning("GAGAL: Nickname harus diisi terlebih dahulu!");
-            textWarningName.SetActive(true); // Tampilkan peringatan nama kosong
-            return; 
+            textWarningName.SetActive(true);
+            return;
         }
 
         ShowPanel(panelJoinRoom);
@@ -93,8 +91,15 @@ public class RelayManager : MonoBehaviour
 
     public void Button_ConnectAsClient()
     {
+        string joinCodeInput = inputJoinCode.text.Trim();
+        if (string.IsNullOrEmpty(joinCodeInput) || joinCodeInput.Length < 6)
+        {
+            Debug.LogError("Gagal: Kode ruangan tidak valid! Harus minimal 6 karakter.");
+            return;
+        }
+
         SavePlayerData();
-        JoinRelay(inputJoinCode.text);
+        JoinRelay(joinCodeInput);
     }
 
     private void ShowPanel(GameObject panelToShow)
@@ -105,18 +110,15 @@ public class RelayManager : MonoBehaviour
         panelToShow.SetActive(true);
     }
 
-    // --- LOGIKA JARINGAN RELAY ---
-    // --- LOGIKA JARINGAN RELAY ---
     private async void CreateRelay()
     {
         try
         {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3); // 3 Tamu + 1 Host = 4 Player
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-            textRoomID.text = "Room ID: " + joinCode; // Tampilkan kode di UI Host
+            textRoomID.text = "Room ID: " + joinCode;
 
-            // PERBAIKAN: Menggunakan extension method SetRelayServerData dari UTP secara langsung
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(
                 allocation.RelayServer.IpV4,
                 (ushort)allocation.RelayServer.Port,
@@ -129,7 +131,8 @@ public class RelayManager : MonoBehaviour
         }
         catch (RelayServiceException e)
         {
-            Debug.LogError("Gagal Host: " + e);
+            Debug.LogError("Gagal Host: " + e.Message);
+            ShutdownRelaySafely();
         }
     }
 
@@ -137,9 +140,9 @@ public class RelayManager : MonoBehaviour
     {
         try
         {
+            Debug.Log("Mencoba bergabung dengan kode: " + joinCode);
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
-            // PERBAIKAN: Menggunakan extension method SetRelayServerData dari UTP secara langsung
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(
                 joinAllocation.RelayServer.IpV4,
                 (ushort)joinAllocation.RelayServer.Port,
@@ -149,16 +152,56 @@ public class RelayManager : MonoBehaviour
                 joinAllocation.HostConnectionData
             );
 
-            NetworkManager.Singleton.StartClient();
-            ShowPanel(panelHostRoom); // Pindah ke panel Host (ruang tunggu) setelah connect
+            bool isSuccess = NetworkManager.Singleton.StartClient();
+
+            if (isSuccess)
+            {
+                ShowPanel(panelHostRoom);
+            }
+            else
+            {
+                Debug.LogError("Gagal menyalakan mesin Client!");
+                ShutdownRelaySafely();
+            }
         }
         catch (RelayServiceException e)
         {
-            Debug.LogError("Gagal Join: " + e);
+            Debug.LogError("Room tidak ditemukan atau ID salah! Pesan error: " + e.Message);
+            ShutdownRelaySafely();
         }
     }
 
-    // --- LOGIKA UPDATE NAMA UI ---
+    // --- FUNGSI PEMBERSIH KONEKSI (MENGATASI ERROR BURST COMPILER) ---
+    private void ShutdownRelaySafely()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            // Jika status terhubung, putus koneksi dulu agar tidak meninggalkan jejak hantu
+            if (NetworkManager.Singleton.IsConnectedClient || NetworkManager.Singleton.IsServer)
+            {
+                // DisconnectClient memutus secara lembut
+                NetworkManager.Singleton.DisconnectClient(NetworkManager.Singleton.LocalClientId);
+            }
+
+            // Tunggu sedikit sebelum mematikan mesin total untuk mencegah Burst error
+            Invoke(nameof(ForceShutdownNetwork), 0.2f);
+        }
+    }
+
+    private void ForceShutdownNetwork()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+    }
+
+    public void Button_KeluarKeMainMenu()
+    {
+        ShutdownRelaySafely();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Refresh scene saat ini (Main_Menu)
+    }
+
     public void AddPlayerToUI(ulong clientId)
     {
         if (currentPlayerCount < textPlayerNames.Length)
@@ -170,7 +213,7 @@ public class RelayManager : MonoBehaviour
 
     public void Button_StartMultiplayerGame()
     {
-        if(NetworkManager.Singleton.IsServer)
+        if (NetworkManager.Singleton.IsServer)
         {
             NetworkManager.Singleton.SceneManager.LoadScene("In_Game", LoadSceneMode.Single);
         }
@@ -184,21 +227,19 @@ public class RelayManager : MonoBehaviour
     {
         string playerName = string.IsNullOrEmpty(inputNickname.text) ? "Player" : inputNickname.text;
         PlayerPrefs.SetString("PlayerNickname", playerName);
-        PlayerPrefs.SetInt("IsMultiplayer", 1); // Penanda mode multiplayer
+        PlayerPrefs.SetInt("IsMultiplayer", 1);
         PlayerPrefs.Save();
     }
 
     public void Button_StartSinglePlayer()
     {
-        PlayerPrefs.SetInt("IsMultiplayer", 0); // Penanda mode single-player
+        PlayerPrefs.SetInt("IsMultiplayer", 0);
         PlayerPrefs.Save();
 
-        // 1. PENGAMAN: Cek apakah jaringan sudah menyala. Jika belum, coba nyalakan.
         if (!NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsClient)
         {
             bool isHostStarted = NetworkManager.Singleton.StartHost();
 
-            // Jika gagal menyala (misal karena Port 7777 bentrok), hentikan fungsi di sini!
             if (!isHostStarted)
             {
                 Debug.LogError("Gagal memulai Host Lokal. Port 7777 sedang dipakai oleh proses lain.");
@@ -206,7 +247,6 @@ public class RelayManager : MonoBehaviour
             }
         }
 
-        // 2. Pindah Scene (Aman dari NullReferenceException karena dipastikan Host sudah jalan)
         if (NetworkManager.Singleton.IsServer)
         {
             NetworkManager.Singleton.SceneManager.LoadScene("In_Game", LoadSceneMode.Single);
