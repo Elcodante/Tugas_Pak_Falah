@@ -11,7 +11,7 @@ public class MovementController : NetworkBehaviour
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.2f;
 
-    // [DITAMBAHKAN] Referensi untuk Canvas Nama agar tidak terbalik
+    // Referensi untuk Canvas Nama agar tidak ikut terbalik saat karakter menoleh
     public Transform nameCanvas;
 
     private Rigidbody2D rb;
@@ -34,7 +34,7 @@ public class MovementController : NetworkBehaviour
     {
         isDead = deadState;
 
-        if (isDead)
+        if (isDead && anim != null)
         {
             anim.SetBool("Jumping", false);
             anim.SetFloat("Speed", 0);
@@ -43,7 +43,8 @@ public class MovementController : NetworkBehaviour
 
     void Update()
     {
-        //if (!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya dan jangan dihapus
+        // WAJIB AKTIF: Hanya pemilik asli karakter ini yang boleh membaca input & mengatur animasinya!
+        if (!IsOwner) return;
 
         if (isDead) return;
 
@@ -55,7 +56,7 @@ public class MovementController : NetworkBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
 
-        // [DIPERBAIKI] Balikkan karakter, dan secara bersamaan beri efek berlawanan pada Canvas
+        // Balikkan arah hadap karakter berdasarkan input pemiliknya
         if (horizontalInput > 0)
         {
             transform.localScale = new Vector3(1, 1, 1);
@@ -72,11 +73,11 @@ public class MovementController : NetworkBehaviour
 
     void FixedUpdate()
     {
-        //if (!IsOwner) return; // Pastikan hanya pemilik objek yang mengontrolnya dan jangan dihapus
+        // WAJIB AKTIF: Jangan biarkan komputer kita menggerakkan fisik karakter milik pemain lain!
+        if (!IsOwner) return;
 
         if (isDead) return;
 
-        // Logika Lari. Jika memegang item, paksa jalan santai.
         float currentSpeed = walkSpeed;
 
         if (!isHoldingItem && Input.GetKey(KeyCode.LeftShift))
@@ -89,9 +90,11 @@ public class MovementController : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (nameCanvas != null) { }
+        // PERBAIKAN: Menghapus kurung kurawal kosong {} yang salah ketik sebelumnya
+        // Tetap dijalankan di semua layar (tanpa !IsOwner) agar teks nama semua pemain selalu terbaca tegak
+        if (nameCanvas != null)
         {
-            nameCanvas.localScale = new Vector3(transform.localScale.x, 1, 1); // Pastikan Canvas Nama selalu tegak
+            nameCanvas.localScale = new Vector3(transform.localScale.x, 1, 1);
         }
     }
 }
