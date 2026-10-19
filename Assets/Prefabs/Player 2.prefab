@@ -403,7 +403,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!61 &2957432605499967550
 BoxCollider2D:
@@ -485,7 +485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2756303329
+  GlobalObjectIdHash: 1688657011
   InScenePlacedSourceGlobalObjectIdHash: 1688657011
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -702,6 +702,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groundCheckRadius: 0.2
+  coyoteTime: 0.2
   nameCanvas: {fileID: 2985815902868136645}
   isHoldingItem: 0
 --- !u!114 &1317715569836294449

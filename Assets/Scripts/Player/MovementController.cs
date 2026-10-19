@@ -7,9 +7,13 @@ public class MovementController : NetworkBehaviour
     public float runSpeed = 8f;
     public float jumpForce = 7f;
 
+    [Header("Pengaturan Lompat & Coyote Time")]
     public Transform groundCheck;
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.2f;
+
+    [Tooltip("Berapa lama (dalam detik) pemain masih bisa melompat setelah jatuh dari ujung tebing?")]
+    public float coyoteTime = 0.2f; // Waktu toleransi standar (0.2 detik sangat nyaman)
 
     // Referensi untuk Canvas Nama agar tidak ikut terbalik saat karakter menoleh
     public Transform nameCanvas;
@@ -18,6 +22,9 @@ public class MovementController : NetworkBehaviour
     private Animator anim;
     private bool isGrounded;
     private float horizontalInput;
+
+    // Variabel internal penghitung Coyote Time
+    private float coyoteTimeCounter;
 
     private bool isDead = false;
 
@@ -49,11 +56,28 @@ public class MovementController : NetworkBehaviour
         if (isDead) return;
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        // --- LOGIKA COYOTE TIME ---
+        if (isGrounded)
+        {
+            // Jika menginjak tanah, isi penuh waktu toleransinya
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            // Jika sedang di udara/jatuh, kurangi waktunya perlahan
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
         horizontalInput = Input.GetAxis("Horizontal");
 
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // [PERBAIKAN LOMPATAN]: Ganti 'isGrounded' dengan 'coyoteTimeCounter > 0f'
+        if (Input.GetButtonDown("Jump") && coyoteTimeCounter > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+            // PENGAMAN PENTING: Kuras habis waktunya agar pemain tidak bisa melakukan "Double Jump" di udara
+            coyoteTimeCounter = 0f;
         }
 
         // Balikkan arah hadap karakter berdasarkan input pemiliknya
@@ -90,8 +114,6 @@ public class MovementController : NetworkBehaviour
 
     private void LateUpdate()
     {
-        // PERBAIKAN: Menghapus kurung kurawal kosong {} yang salah ketik sebelumnya
-        // Tetap dijalankan di semua layar (tanpa !IsOwner) agar teks nama semua pemain selalu terbaca tegak
         if (nameCanvas != null)
         {
             nameCanvas.localScale = new Vector3(transform.localScale.x, 1, 1);
