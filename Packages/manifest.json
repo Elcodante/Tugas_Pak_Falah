@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.akiojin.unity-mcp-server": "https://github.com/akiojin/unity-mcp-server.git?path=UnityMCPServer/Packages/unity-mcp-server",
+    "com.community.antigravity-unity": "https://github.com/usmanbutt-dev/antigravity-unity.git",
     "com.unity.2d.animation": "13.0.4",
     "com.unity.2d.aseprite": "3.0.1",
     "com.unity.2d.psdimporter": "12.0.1",

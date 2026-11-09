@@ -12,6 +12,13 @@
       },
       "hash": "d18cb8a6622aee03463606e9b8494993f82a4cc5"
     },
+    "com.community.antigravity-unity": {
+      "version": "https://github.com/usmanbutt-dev/antigravity-unity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "9d13ba48c1e2f2d3628e4728b07b65ace21c975a"
+    },
     "com.unity.2d.animation": {
       "version": "13.0.4",
       "depth": 0,
